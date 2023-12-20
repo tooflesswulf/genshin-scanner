@@ -18,8 +18,8 @@ class GenshinArtifactDataset(Dataset):
         self.im_size = im_size
 
         # static db
-        self.image_files = [f'image{i}.png' for i in range(10)]
-        self.anno_files = [f'image{i}-anno.json' for i in range(10)]
+        self.image_files = [f'image{i}.png' for i in range(20)]
+        self.anno_files = [f'image{i}-anno.json' for i in range(20)]
 
         self.images = [Image.open(os.path.join(root_dir, im)).convert('RGB')
                        for im in self.image_files]
