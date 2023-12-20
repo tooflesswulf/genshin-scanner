@@ -74,12 +74,17 @@ if __name__ == '__main__':
 
     im_size = 128
 
-    ds = dataset.GenshinArtifactDataset('/Users/albertxu/Desktop/go-tests/scanner-data/', im_size=im_size, transform=tr)
-    samp = RandomSampler(ds, replacement=True, num_samples=640)
-    loader = DataLoader(ds, batch_size=64, sampler=samp)
+    ds = dataset.GenshinArtifactDataset('/home/code/scanner-data/', im_size=im_size, transform=tr)
+    samp = RandomSampler(ds, replacement=True, num_samples=1024)
+    loader = DataLoader(ds, batch_size=16, sampler=samp)
 
     model = SimpleNetwork(im_size=im_size)
     m = LModule(model, lr=1e-5)
+
+    # Resume from:
+    ckpt = torch.load('/home/code/lightning_logs/version_3/checkpoints/epoch=3001-step=96064.ckpt')
+    m.load_state_dict(ckpt['state_dict'])
+
     trainer = Trainer(max_epochs=10_000, accelerator='gpu')
     trainer.fit(m, loader)
 
