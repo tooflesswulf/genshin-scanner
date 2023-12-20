@@ -18,23 +18,26 @@ class SimpleNetwork(nn.Module):
         self.conv = nn.Sequential(
             nn.Conv2d(3, 32, 5),  # h-4, w-4
             nn.ReLU(),
-            nn.MaxPool2d(4, stride=4),  # h/2, w/2
+            nn.MaxPool2d(2, stride=2),  # h/2, w/2
             nn.Conv2d(32, 64, 5),  # h-4, w-4
             nn.ReLU(),
-            nn.MaxPool2d(4, stride=4),  # h/2, w/2
+            nn.MaxPool2d(2, stride=2),  # h/2, w/2
+            nn.Conv2d(64, 128, 5),  # h-4, w-4
+            nn.ReLU(),
+            nn.MaxPool2d(2, stride=2),  # h/2, w/2
         )
 
         self.conv_size = im_size
-        for _ in range(2):
-            self.conv_size = (self.conv_size - 4) // 4
-        self.fc_size = 64 * self.conv_size * self.conv_size
+        for _ in range(3):
+            self.conv_size = (self.conv_size - 4) // 2
+        self.fc_size = 128 * self.conv_size * self.conv_size
         self.fc = nn.Sequential(
             nn.Linear(self.fc_size, 64),
             nn.ReLU(),
             nn.Linear(64, out_size),
         )
 
-    def forward(self, x):
+    def forward(self, x, _=None):
         x = self.conv(x)
         x = x.view(-1, self.fc_size)
         x = self.fc(x)
