@@ -63,7 +63,7 @@ class GenshinArtifactDataset(Dataset):
         a = np.array([*_a, *_a])
         b = np.array([*(_b-_a), *(_b-_a)])
         for f in fields:
-            anno2[f] = (anno[f] - a) / b
+            anno2[f] = np.clip((anno[f] - a) / b, 0, 1)
 
         y_regr = []
         for f in fields:
