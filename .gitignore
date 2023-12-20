@@ -1,7 +1,8 @@
 __pycache__/
 .ipynb_checkpoints/
 checkpoints_old/
-checkpoints_old/
+checkpoints/
+lightning_logs
 
 .DS_Store
 
