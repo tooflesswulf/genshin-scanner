@@ -3,8 +3,10 @@ __pycache__/
 checkpoints_old/
 checkpoints/
 lightning_logs
+scanner-data/
 
 .DS_Store
 
+*.sh
 *.ipynb
 
