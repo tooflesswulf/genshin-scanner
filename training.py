@@ -87,8 +87,8 @@ if __name__ == '__main__':
     ds = dataset.GenshinArtifactDataset(root_dir, anno_db,
                                         im_size=im_size, transform=tr)
     samp = RandomSampler(ds, replacement=True, num_samples=1024)
-    # loader = DataLoader(ds, batch_size=16, sampler=samp, num_workers=4)
-    loader = dataset.MultiEpochsDataLoader(ds, batch_size=16, sampler=samp, num_workers=4)
+    loader = DataLoader(ds, batch_size=16, sampler=samp, num_workers=4, persistent_workers=True)
+    # loader = dataset.MultiEpochsDataLoader(ds, batch_size=16, sampler=samp, num_workers=4)
 
     model = SimpleNetwork(im_size=im_size)
     m = LModule(model, lr=1e-5)
