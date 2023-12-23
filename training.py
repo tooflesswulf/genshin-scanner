@@ -87,16 +87,15 @@ if __name__ == '__main__':
     ds = dataset.GenshinArtifactDataset(root_dir, anno_db,
                                         im_size=im_size, transform=tr)
     samp = RandomSampler(ds, replacement=True, num_samples=1024)
-    loader = DataLoader(ds, batch_size=16, sampler=samp, num_workers=4, persistent_workers=True)
-    # loader = dataset.MultiEpochsDataLoader(ds, batch_size=16, sampler=samp, num_workers=4)
+    loader = DataLoader(ds, batch_size=16, sampler=samp, num_workers=16, persistent_workers=True)
 
     model = SimpleNetwork(im_size=im_size)
     m = LModule(model, lr=1e-5)
 
     # Resume from:
-    # ckpt = torch.load(
-    #     '/home/code/lightning_logs/version_4/checkpoints/epoch=9999-step=320000.ckpt')
-    # m.load_state_dict(ckpt['state_dict'])
+    ckpt = torch.load(
+        '/home/code/lightning_logs/version_5/checkpoints/epoch=1919-step=122880.ckpt')
+    m.load_state_dict(ckpt['state_dict'])
 
     trainer = Trainer(max_epochs=10_000, accelerator='gpu')
     trainer.fit(m, loader)
