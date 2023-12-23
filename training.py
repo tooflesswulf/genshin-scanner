@@ -80,7 +80,7 @@ if __name__ == '__main__':
 
     im_size = 200
 
-    root_dir = '/Users/albertxu/Desktop/go-tests/scanner-data/'
+    root_dir = '/home/code/scanner-data/'
     anno_db = [json.load(open(os.path.join(root_dir, f'image{i}-anno.json'), 'r'))
                for i in range(35)]
 
