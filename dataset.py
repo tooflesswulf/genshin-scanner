@@ -11,7 +11,7 @@ from torchvision.datasets import VisionDataset
 
 
 class GenshinArtifactDataset(Dataset):
-    def __init__(self, root_dir, transform=None, min_bbox_overlap=.95, im_size=100):
+    def __init__(self, root_dir, anno_db, transform=None, min_bbox_overlap=.95, im_size=100):
         self.root = root_dir
         self.transform = transform
         self.min_bbox_overlap = min_bbox_overlap
@@ -21,8 +21,9 @@ class GenshinArtifactDataset(Dataset):
         self.image_files = [f'image{i}.png' for i in range(35)]
         self.anno_files = [f'image{i}-anno.json' for i in range(35)]
 
-        self.annotations = [json.load(open(os.path.join(root_dir, af), 'r'))
-                            for af in self.anno_files]
+        self.annotations = anno_db
+        # [json.load(open(os.path.join(root_dir, af), 'r'))
+        #                     for af in self.anno_files]
 
     def __len__(self):
         return len(self.image_files)

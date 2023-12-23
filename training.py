@@ -1,11 +1,9 @@
 import dataset
 import torchvision.transforms.v2 as v2
-import torchvision
-import PIL
+import json
+import os
 
 import torch
-import numpy as np
-
 from torch import nn
 from torch.utils.data import DataLoader, RandomSampler
 
@@ -82,7 +80,11 @@ if __name__ == '__main__':
 
     im_size = 200
 
-    ds = dataset.GenshinArtifactDataset('/Users/albertxu/Desktop/go-tests/scanner-data/',
+    root_dir = '/Users/albertxu/Desktop/go-tests/scanner-data/'
+    anno_db = [json.load(open(os.path.join(root_dir, f'image{i}-anno.json'), 'r'))
+               for i in range(35)]
+
+    ds = dataset.GenshinArtifactDataset(root_dir, anno_db,
                                         im_size=im_size, transform=tr)
     samp = RandomSampler(ds, replacement=True, num_samples=1024)
     loader = DataLoader(ds, batch_size=16, sampler=samp)

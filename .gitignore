@@ -2,6 +2,7 @@ __pycache__/
 .ipynb_checkpoints/
 checkpoints_old/
 checkpoints/
+checkpoints*/
 lightning_logs
 scanner-data/
 
