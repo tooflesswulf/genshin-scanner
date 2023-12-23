@@ -29,7 +29,8 @@ class GenshinArtifactDataset(Dataset):
         return len(self.image_files)
 
     def __getitem__(self, ix):
-        im = Image.open(os.path.join(self.root, self.image_files[ix])).convert('RGB')
+        im = Image.open(os.path.join(self.root, self.image_files[ix])) \
+            .convert('RGB')
         anno = self.annotations[ix]
 
         # Produce random bbox with some minimum overlap.
@@ -51,8 +52,10 @@ class GenshinArtifactDataset(Dataset):
                           @ np.array([[1, 0, 1, 0], [0, 1, 0, 1]]).T)
 
         # Use obtained random crop to transform image & boxes.
-        x1, y1, x2, y2 = (np.array([*im.size, *im.size]) * rand_crop).astype(int)
-        im = resized_crop(im, y1, x1, y2-y1, x2-x1, [self.im_size, self.im_size])
+        x1, y1, x2, y2 = (np.array([*im.size, *im.size]) * rand_crop) \
+            .astype(int)
+        im = resized_crop(im, y1, x1, y2-y1, x2-x1,
+                          [self.im_size, self.im_size])
         anno2 = {}
         fields = ['title', 'slot', 'mainstat', 'level',
                   'rarity', 'substat', 'set', 'lock', 'bbox']
@@ -75,3 +78,34 @@ class GenshinArtifactDataset(Dataset):
             'y1': torch.Tensor(y_regr),
             **anno2
         }
+
+
+class MultiEpochsDataLoader(torch.utils.data.DataLoader):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._DataLoader__initialized = False
+        self.batch_sampler = _RepeatSampler(self.batch_sampler)
+        self._DataLoader__initialized = True
+        self.iterator = super().__iter__()
+
+    def __len__(self):
+        return len(self.batch_sampler.sampler)
+
+    def __iter__(self):
+        for i in range(len(self)):
+            yield next(self.iterator)
+
+
+class _RepeatSampler(object):
+    """ Sampler that repeats forever.
+    Args:
+        sampler (Sampler)
+    """
+
+    def __init__(self, sampler):
+        self.sampler = sampler
+
+    def __iter__(self):
+        while True:
+            yield from iter(self.sampler)
