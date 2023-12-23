@@ -82,7 +82,7 @@ if __name__ == '__main__':
     m = LModule(model, lr=1e-5)
 
     # Resume from:
-    ckpt = torch.load('/home/code/lightning_logs/version_3/checkpoints/epoch=3001-step=96064.ckpt')
+    ckpt = torch.load('/home/code/lightning_logs/version_4/checkpoints/epoch=9999-step=320000.ckpt')
     m.load_state_dict(ckpt['state_dict'])
 
     trainer = Trainer(max_epochs=10_000, accelerator='gpu')
