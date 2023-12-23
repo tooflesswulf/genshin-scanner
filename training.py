@@ -16,7 +16,13 @@ class SimpleNetwork(nn.Module):
     def __init__(self, im_size=100, out_size=36):
         super(SimpleNetwork, self).__init__()
         self.conv = nn.Sequential(
-            nn.Conv2d(3, 32, 5),  # h-4, w-4
+            nn.Conv2d(3, 8, 5),  # h-4, w-4
+            nn.ReLU(),
+            nn.MaxPool2d(2, stride=2),  # h/2, w/2
+            nn.Conv2d(8, 16, 5),  # h-4, w-4
+            nn.ReLU(),
+            nn.MaxPool2d(2, stride=2),  # h/2, w/2
+            nn.Conv2d(16, 32, 5),  # h-4, w-4
             nn.ReLU(),
             nn.MaxPool2d(2, stride=2),  # h/2, w/2
             nn.Conv2d(32, 64, 5),  # h-4, w-4
@@ -24,17 +30,17 @@ class SimpleNetwork(nn.Module):
             nn.MaxPool2d(2, stride=2),  # h/2, w/2
             nn.Conv2d(64, 128, 5),  # h-4, w-4
             nn.ReLU(),
-            nn.MaxPool2d(2, stride=2),  # h/2, w/2
         )
 
         self.conv_size = im_size
-        for _ in range(3):
+        for _ in range(4):
             self.conv_size = (self.conv_size - 4) // 2
+        self.conv_size -= 4
         self.fc_size = 128 * self.conv_size * self.conv_size
         self.fc = nn.Sequential(
-            nn.Linear(self.fc_size, 64),
+            nn.Linear(self.fc_size, 128),
             nn.ReLU(),
-            nn.Linear(64, out_size),
+            nn.Linear(128, out_size),
         )
 
     def forward(self, x, _=None):
@@ -63,18 +69,21 @@ class LModule(LightningModule):
         self.log('train_loss', loss, on_epoch=True, batch_size=x.shape[0])
         return loss
 
+
 if __name__ == '__main__':
     tr = v2.Compose([
-    v2.ToImage(),
-    v2.ToDtype(torch.uint8, scale=True),
-    v2.ColorJitter(brightness=.3, hue=.05, contrast=.1),
-    v2.ToDtype(torch.float32, scale=True),  # Normalize expects float input
-    v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),  # Imagenet normalization
+        v2.ToImage(),
+        v2.ToDtype(torch.uint8, scale=True),
+        v2.ColorJitter(brightness=.3, hue=.05, contrast=.1),
+        v2.ToDtype(torch.float32, scale=True),  # Normalize expects float input
+        v2.Normalize(mean=[0.485, 0.456, 0.406],
+                     std=[0.229, 0.224, 0.225]),  # Imagenet normalization
     ])
 
-    im_size = 128
+    im_size = 200
 
-    ds = dataset.GenshinArtifactDataset('/home/code/scanner-data/', im_size=im_size, transform=tr)
+    ds = dataset.GenshinArtifactDataset('/Users/albertxu/Desktop/go-tests/scanner-data/',
+                                        im_size=im_size, transform=tr)
     samp = RandomSampler(ds, replacement=True, num_samples=1024)
     loader = DataLoader(ds, batch_size=16, sampler=samp)
 
@@ -82,9 +91,9 @@ if __name__ == '__main__':
     m = LModule(model, lr=1e-5)
 
     # Resume from:
-    ckpt = torch.load('/home/code/lightning_logs/version_4/checkpoints/epoch=9999-step=320000.ckpt')
-    m.load_state_dict(ckpt['state_dict'])
+    # ckpt = torch.load(
+    #     '/home/code/lightning_logs/version_4/checkpoints/epoch=9999-step=320000.ckpt')
+    # m.load_state_dict(ckpt['state_dict'])
 
-    trainer = Trainer(max_epochs=10_000, accelerator='gpu')
+    trainer = Trainer(max_epochs=10_000, accelerator='cpu')
     trainer.fit(m, loader)
-
