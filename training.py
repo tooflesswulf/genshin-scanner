@@ -82,10 +82,10 @@ if __name__ == '__main__':
 
     im_size = 200
 
-    ds = dataset.GenshinArtifactDataset('/Users/albertxu/Desktop/go-tests/scanner-data/',
+    ds = dataset.GenshinArtifactDataset('/home/code/scanner-data/',
                                         im_size=im_size, transform=tr)
     samp = RandomSampler(ds, replacement=True, num_samples=1024)
-    loader = DataLoader(ds, batch_size=16, sampler=samp)
+    loader = DataLoader(ds, batch_size=16, sampler=samp, num_workers=4)
 
     model = SimpleNetwork(im_size=im_size)
     m = LModule(model, lr=1e-5)
@@ -95,5 +95,5 @@ if __name__ == '__main__':
     #     '/home/code/lightning_logs/version_4/checkpoints/epoch=9999-step=320000.ckpt')
     # m.load_state_dict(ckpt['state_dict'])
 
-    trainer = Trainer(max_epochs=10_000, accelerator='cpu')
+    trainer = Trainer(max_epochs=10_000, accelerator='gpu')
     trainer.fit(m, loader)
