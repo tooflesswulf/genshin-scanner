@@ -18,11 +18,9 @@ class GenshinArtifactDataset(Dataset):
         self.im_size = im_size
 
         # static db
-        self.image_files = [f'image{i}.png' for i in range(20)]
-        self.anno_files = [f'image{i}-anno.json' for i in range(20)]
+        self.image_files = [f'image{i}.png' for i in range(35)]
+        self.anno_files = [f'image{i}-anno.json' for i in range(35)]
 
-        self.images = [Image.open(os.path.join(root_dir, im)).convert('RGB')
-                       for im in self.image_files]
         self.annotations = [json.load(open(os.path.join(root_dir, af), 'r'))
                             for af in self.anno_files]
 
@@ -30,7 +28,7 @@ class GenshinArtifactDataset(Dataset):
         return len(self.image_files)
 
     def __getitem__(self, ix):
-        im = self.images[ix]
+        im = Image.open(os.path.join(self.root, self.image_files[ix])).convert('RGB')
         anno = self.annotations[ix]
 
         # Produce random bbox with some minimum overlap.
