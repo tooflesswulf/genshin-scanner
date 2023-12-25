@@ -94,7 +94,7 @@ if __name__ == '__main__':
 
     # Resume from:
     ckpt = torch.load(
-        '/home/code/lightning_logs/version_5/checkpoints/epoch=1919-step=122880.ckpt')
+        '/home/code/lightning_logs/version_6/checkpoints/epoch=9999-step=320000.ckpt')
     m.load_state_dict(ckpt['state_dict'])
 
     trainer = Trainer(max_epochs=10_000, accelerator='gpu')
