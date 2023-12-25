@@ -5,6 +5,8 @@ import sys
 import nobuco
 from nobuco import ChannelOrder, ChannelOrderingStrategy
 from nobuco.layers.weight import WeightLayer
+import tensorflow as tf
+import tensorflowjs as tfjs
 
 from training import SimpleNetwork, LModule
 
@@ -30,4 +32,7 @@ if __name__ == '__main__':
         inputs_channel_order=ChannelOrder.TENSORFLOW,
         outputs_channel_order=ChannelOrder.TENSORFLOW
     )
-    print(keras_model)
+    print(keras_model(tf.zeros((1, 200, 200, 3))))
+
+    tfjs.converters.save_keras_model(keras_model, 'tfjs')
+
