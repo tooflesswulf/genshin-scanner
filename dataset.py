@@ -62,7 +62,7 @@ class GenshinArtifactDataset(Dataset):
         x1, x2, y1, y2 = bbox
         wigx = (1 - self.min_bbox_overlap)*(x2 - x1)
         wigy = (1 - self.min_bbox_overlap)*(y2 - y1)
-        a, b, c, d = bbox + np.array([wigx, wigy, -wigx, -wigy])
+        a, b, c, d = np.clip(bbox + np.array([wigx, wigy, -wigx, -wigy]), 0, 1)
 
         z = np.array([-1, -1, 1, 1])
         orig_area = np.prod(bbox @ np.array([[-1, 0, 1, 0], [0, -1, 0, 1]]).T)
