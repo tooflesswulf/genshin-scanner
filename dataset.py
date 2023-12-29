@@ -11,7 +11,7 @@ from torchvision.datasets import VisionDataset
 
 
 def my_resize_crop(im: Image, i, j, h, w, shape):
-    crop_im = np.array(im)[i:i+h, j:j+w, :]
+    crop_im = np.array(im)[i:i+h, j:j+w, :].transpose(2,0,1)
 
     h2, w2 = shape
     sx = (w2-1) / (w-1)
@@ -19,10 +19,10 @@ def my_resize_crop(im: Image, i, j, h, w, shape):
 
     xx, yy = np.meshgrid(np.arange(h2), np.arange(w2))
     x1 = np.floor(xx / sx).astype(int)
-    x1[x1 == w - 1] = w - 2
+    x1[x1 >= w - 1] = w - 2
     x2 = x1 + 1
     y1 = np.floor(yy / sy).astype(int)
-    y1[y1 == h - 1] = h - 2
+    y1[y1 >= h - 1] = h - 2
     y2 = y1 + 1
 
     q11 = (x2 - xx/sx) * (y2 - yy/sy) * crop_im[:, y1, x1]
