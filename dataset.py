@@ -10,7 +10,31 @@ from torchvision.transforms.functional import crop, resized_crop
 from torchvision.datasets import VisionDataset
 
 
+def my_resize_crop(im: Image, i, j, h, w, shape):
+    crop_im = np.array(im)[i:i+h, j:j+w, :]
+
+    h2, w2 = shape
+    sx = (w2-1) / (w-1)
+    sy = (h2-1) / (h-1)
+
+    xx, yy = np.meshgrid(np.arange(h2), np.arange(w2))
+    x1 = np.floor(xx / sx).astype(int)
+    x1[x1 == w - 1] = w - 2
+    x2 = x1 + 1
+    y1 = np.floor(yy / sy).astype(int)
+    y1[y1 == h - 1] = h - 2
+    y2 = y1 + 1
+
+    q11 = (x2 - xx/sx) * (y2 - yy/sy) * crop_im[:, y1, x1]
+    q21 = (xx/sx - x1) * (y2 - yy/sy) * crop_im[:, y1, x2]
+    q12 = (x2 - xx/sx) * (yy/sy - y1) * crop_im[:, y2, x1]
+    q22 = (xx/sx - x1) * (yy/sy - y1) * crop_im[:, y2, x2]
+    return Image.fromarray(np.round(q11 + q12 + q21 + q22).astype(np.uint8).transpose(1, 2, 0))
+
+
 class GenshinArtifactDataset(Dataset):
+    resize_impl_p = .5
+
     def __init__(self, root_dir, anno_db, transform=None, min_bbox_overlap=.95, im_size=100):
         self.root = root_dir
         self.transform = transform
@@ -54,8 +78,13 @@ class GenshinArtifactDataset(Dataset):
         # Use obtained random crop to transform image & boxes.
         x1, y1, x2, y2 = (np.array([*im.size, *im.size]) * rand_crop) \
             .astype(int)
-        im = resized_crop(im, y1, x1, y2-y1, x2-x1,
-                          [self.im_size, self.im_size])
+        if np.random.random() < self.resize_impl_p:
+            im = resized_crop(im, y1, x1, y2-y1, x2-x1,
+                              [self.im_size, self.im_size])
+        else:
+            im = my_resize_crop(im, y1, x1, y2-y1, x2-x1,
+                                [self.im_size, self.im_size])
+
         anno2 = {}
         fields = ['title', 'slot', 'mainstat', 'level',
                   'rarity', 'substat', 'set', 'lock', 'bbox']

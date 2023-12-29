@@ -68,14 +68,28 @@ class LModule(LightningModule):
         return loss
 
 
+class AddGaussianNoise(object):
+    def __init__(self, mean=0., std=1.):
+        self.std = std
+        self.mean = mean
+
+    def __call__(self, tensor):
+        return tensor + torch.randn(tensor.size()) * self.std + self.mean
+
+    def __repr__(self):
+        return self.__class__.__name__ + '(mean={0}, std={1})'.format(self.mean, self.std)
+
+
 if __name__ == '__main__':
     tr = v2.Compose([
         v2.ToImage(),
         v2.ToDtype(torch.uint8, scale=True),
         v2.ColorJitter(brightness=.3, hue=.05, contrast=.1),
+        v2.GaussianBlur(kernel_size=11, sigma=[.00001, 1.5]),
         v2.ToDtype(torch.float32, scale=True),  # Normalize expects float input
         v2.Normalize(mean=[0.485, 0.456, 0.406],
                      std=[0.229, 0.224, 0.225]),  # Imagenet normalization
+        AddGaussianNoise(std=.1),
     ])
 
     im_size = 200
@@ -87,7 +101,8 @@ if __name__ == '__main__':
     ds = dataset.GenshinArtifactDataset(root_dir, anno_db,
                                         im_size=im_size, transform=tr)
     samp = RandomSampler(ds, replacement=True, num_samples=1024)
-    loader = DataLoader(ds, batch_size=16, sampler=samp, num_workers=16, persistent_workers=True)
+    loader = DataLoader(ds, batch_size=16, sampler=samp,
+                        num_workers=16, persistent_workers=True)
 
     model = SimpleNetwork(im_size=im_size)
     m = LModule(model, lr=1e-5)
