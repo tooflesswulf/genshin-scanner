@@ -96,7 +96,7 @@ if __name__ == '__main__':
 
     root_dir = '/home/code/scanner-data/'
     anno_db = [json.load(open(os.path.join(root_dir, f'image{i}-anno.json'), 'r'))
-               for i in range(54)]
+               for i in range(60)]
 
     ds = dataset.GenshinArtifactDataset(root_dir, anno_db,
                                         im_size=im_size, transform=tr)
