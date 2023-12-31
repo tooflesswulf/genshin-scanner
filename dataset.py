@@ -42,8 +42,8 @@ class GenshinArtifactDataset(Dataset):
         self.im_size = im_size
 
         # static db
-        self.image_files = [f'image{i}.png' for i in range(54)]
-        self.anno_files = [f'image{i}-anno.json' for i in range(54)]
+        self.image_files = [f'image{i}.png' for i in range(60)]
+        self.anno_files = [f'image{i}-anno.json' for i in range(60)]
 
         self.annotations = anno_db
         # [json.load(open(os.path.join(root_dir, af), 'r'))
