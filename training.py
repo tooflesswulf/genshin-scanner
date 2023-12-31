@@ -56,7 +56,7 @@ class LModule(LightningModule):
         self.lr = lr
 
     def configure_optimizers(self):
-        opt = torch.optim.Adam(self.parameters(), lr=self.lr)
+        opt = torch.optim.Adam(self.parameters(), lr=self.lr, weight_decay=1e-2)
         return opt
 
     def training_step(self, batch, bi):
@@ -100,8 +100,8 @@ if __name__ == '__main__':
 
     ds = dataset.GenshinArtifactDataset(root_dir, anno_db,
                                         im_size=im_size, transform=tr)
-    samp = RandomSampler(ds, replacement=True, num_samples=1024)
-    loader = DataLoader(ds, batch_size=16, sampler=samp,
+    samp = RandomSampler(ds, replacement=True, num_samples=2048)
+    loader = DataLoader(ds, batch_size=32, sampler=samp,
                         num_workers=16, persistent_workers=True)
 
     model = SimpleNetwork(im_size=im_size)
@@ -109,7 +109,7 @@ if __name__ == '__main__':
 
     # Resume from:
     ckpt = torch.load(
-        '/home/code/lightning_logs/version_9/checkpoints/epoch=3331-step=106624.ckpt')
+        '/home/code/lightning_logs/version_10/checkpoints/epoch=9999-step=320000.ckpt')
     m.load_state_dict(ckpt['state_dict'])
 
     trainer = Trainer(max_epochs=10_000, accelerator='gpu')
