@@ -35,19 +35,18 @@ def my_resize_crop(im: Image, i, j, h, w, shape):
 class GenshinArtifactDataset(Dataset):
     resize_impl_p = .5
 
-    def __init__(self, root_dir, anno_db, transform=None, min_bbox_overlap=.95, im_size=100):
+    def __init__(self, root_dir, transform=None, min_bbox_overlap=.95, im_size=100):
         self.root = root_dir
         self.transform = transform
         self.min_bbox_overlap = min_bbox_overlap
         self.im_size = im_size
 
         # static db
-        self.image_files = [f'image{i}.png' for i in range(60)]
-        self.anno_files = [f'image{i}-anno.json' for i in range(60)]
+        num_images = 83
+        self.image_files = [f'image{i}.png' for i in range(num_images)]
+        self.anno_files = [f'image{i}-anno.json' for i in range(num_images)]
 
-        self.annotations = anno_db
-        # [json.load(open(os.path.join(root_dir, af), 'r'))
-        #                     for af in self.anno_files]
+        self.annotations = [json.load(open(os.path.join(root_dir, af), 'r')) for af in self.anno_files]
 
     def __len__(self):
         return len(self.image_files)
