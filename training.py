@@ -56,7 +56,7 @@ class LModule(LightningModule):
         self.lr = lr
 
     def configure_optimizers(self):
-        opt = torch.optim.Adam(self.parameters(), lr=self.lr)
+        opt = torch.optim.Adam(self.parameters(), lr=self.lr, weight_decay=1e-6)
         return opt
 
     def training_step(self, batch, bi):
@@ -95,10 +95,8 @@ if __name__ == '__main__':
     im_size = 200
 
     root_dir = '/home/code/scanner-data/'
-    anno_db = [json.load(open(os.path.join(root_dir, f'image{i}-anno.json'), 'r'))
-               for i in range(60)]
 
-    ds = dataset.GenshinArtifactDataset(root_dir, anno_db,
+    ds = dataset.GenshinArtifactDataset(root_dir,
                                         im_size=im_size, transform=tr)
     samp = RandomSampler(ds, replacement=True, num_samples=1024)
     loader = DataLoader(ds, batch_size=16, sampler=samp,
@@ -109,7 +107,7 @@ if __name__ == '__main__':
 
     # Resume from:
     ckpt = torch.load(
-        '/home/code/lightning_logs/version_9/checkpoints/epoch=3331-step=106624.ckpt')
+        '/home/code/lightning_logs/version_14/checkpoints/epoch=4621-step=147904.ckpt')
     m.load_state_dict(ckpt['state_dict'])
 
     trainer = Trainer(max_epochs=10_000, accelerator='gpu')
